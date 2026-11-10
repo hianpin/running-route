@@ -1,0 +1,6 @@
+{
+  "name": "SG RunRoute",
+  "description": "Singapore running route generator and analyzer powered by official SLA OneMap API and Leaflet.",
+  "requestFramePermissions": ["geolocation"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
