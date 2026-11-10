@@ -31,6 +31,9 @@ export const ApiSettingsModal: React.FC<ApiSettingsModalProps> = ({
 }) => {
   const [tab, setTab] = useState<'paste' | 'credentials'>('paste');
   const [pastedToken, setPastedToken] = useState(tokenStatus.token || '');
+  const [accountKeyInput, setAccountKeyInput] = useState(() => {
+    return localStorage.getItem('onemap_account_key') || '';
+  });
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -84,8 +87,10 @@ export const ApiSettingsModal: React.FC<ApiSettingsModalProps> = ({
 
   const handleClear = () => {
     clearStoredToken();
+    localStorage.removeItem('onemap_account_key');
     setPastedToken('');
-    setStatusMsg({ type: 'success', text: 'Token removed. Running in Demo / Fallback mode.' });
+    setAccountKeyInput('');
+    setStatusMsg({ type: 'success', text: 'Token & AccountKey removed. Running in Demo / Fallback mode.' });
     onTokenUpdated();
   };
 
@@ -206,7 +211,7 @@ export const ApiSettingsModal: React.FC<ApiSettingsModalProps> = ({
           </div>
         </div>
 
-        {/* Tab 1: Paste Token */}
+        {/* Tab 1: Paste Token & AccountKey */}
         {tab === 'paste' && (
           <div className="p-4 pt-1 space-y-3">
             <div>
@@ -221,13 +226,31 @@ export const ApiSettingsModal: React.FC<ApiSettingsModalProps> = ({
                 className="w-full mt-1.5 p-2.5 text-xs font-mono rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
               />
             </div>
+
+            <div>
+              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center justify-between">
+                <span>AccountKey (Optional / Environment)</span>
+                <span className="text-[10px] text-slate-400 font-normal">Header: AccountKey</span>
+              </label>
+              <input
+                type="password"
+                value={accountKeyInput}
+                onChange={(e) => {
+                  setAccountKeyInput(e.target.value);
+                  localStorage.setItem('onemap_account_key', e.target.value);
+                }}
+                placeholder="Leave blank to use server env ACCOUNT_KEY or paste key here"
+                className="w-full mt-1.5 h-10 px-3 text-xs font-mono rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+              />
+            </div>
+
             <button
               type="button"
               onClick={handleSavePasted}
               className="w-full h-10 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs transition-colors flex items-center justify-center gap-1.5 shadow-sm shadow-emerald-600/20 cursor-pointer"
             >
               <ShieldCheck className="w-4 h-4" />
-              <span>Save Access Token</span>
+              <span>Save Credentials</span>
             </button>
           </div>
         )}

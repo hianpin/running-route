@@ -404,3 +404,47 @@ function generateSimulatedRoute(
     },
   };
 }
+
+/**
+ * Reverse geocode coordinates to closest building or street address
+ */
+export async function reverseGeocode(
+  lat: number,
+  lng: number,
+  buffer: number = 40,
+  addressType: string = 'All'
+): Promise<string | null> {
+  try {
+    const url = `/api/revgeocode?location=${lat},${lng}&buffer=${buffer}&addressType=${addressType}`;
+    const token = getStoredTokenStatus().token;
+    const headers: Record<string, string> = {};
+    if (token) headers['Authorization'] = token;
+
+    const res = await fetch(url, { headers });
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.GeocodeInfo && data.GeocodeInfo.length > 0) {
+        const item = data.GeocodeInfo[0];
+        return item.BUILDING || item.ROAD || item.BLOCK || `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+      }
+    }
+  } catch {
+    // ignore
+  }
+  return null;
+}
+
+/**
+ * Fetch live carpark availability across Singapore
+ */
+export async function getLiveCarparks(): Promise<any> {
+  try {
+    const res = await fetch('/api/carparkavailability');
+    if (res.ok) {
+      return await res.json();
+    }
+  } catch (err) {
+    console.error('Failed to fetch carpark availability:', err);
+  }
+  return null;
+}
